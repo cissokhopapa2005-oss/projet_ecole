@@ -1,12 +1,23 @@
-{% extends "students/base.html" %}
-
-{% block title %}{{ student.first_name }} {{ student.last_name }}{% endblock %}
-
+﻿{% extends "base.html" %}
+{% block title %}{{ student.first_name }} {{ student.last_name }} - School Manager{% endblock %}
 {% block content %}
-    <a href="{% url 'student_list' %}">← Retour à la liste</a>
-    <h1>{{ student.first_name }} {{ student.last_name|upper }}</h1>
-    <p>Numéro: {{ student.id }}</p>
-    <p>Classe: {{ student.classe }}</p>
-    <p>Téléphone: {{ student.phone|default:"Non renseigné" }}</p>
-    <p>Statut: {% if student.active %}Actif{% else %}Inactif{% endif %}</p>
+<a href="{% url 'students:list' %}">← Retour à la liste</a>
+<div class="detail-grid" style="margin-top:18px;">
+    <article class="card detail-card">
+        <p class="eyebrow">Fiche étudiant</p>
+        <h1>{{ student.first_name }} {{ student.last_name|upper }}</h1>
+        <p><strong>Numéro :</strong> #{{ student.id }}</p>
+        <p><strong>Email :</strong> {{ student.email }}</p>
+        <p><strong>Classe :</strong> {{ student.classe }}</p>
+        <p><strong>Téléphone :</strong> {{ student.phone|default:"Non renseigné" }}</p>
+        <p><strong>Statut :</strong> {% if student.active %}<span class="badge">Actif</span>{% else %}<span class="badge inactive">Inactif</span>{% endif %}</p>
+    </article>
+    <aside class="card" style="padding:20px;height:max-content;">
+        <p class="eyebrow">Actions</p>
+        <div class="actions" style="flex-direction:column;align-items:stretch;">
+            <a class="button" href="{% url 'students:update' student.id %}">Modifier</a>
+            <a class="button btn-danger" href="{% url 'students:delete' student.id %}">Supprimer</a>
+        </div>
+    </aside>
+</div>
 {% endblock %}

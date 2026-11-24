@@ -1,44 +1,64 @@
-from django.http import Http404
-from django.shortcuts import render
+from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
 
-# Données temporaires en attendant la base de données
-STUDENTS = [
-    {"id": 1, "first_name": "Awa", "last_name": "Diop", "classe": "L1", "active": True},
-    {"id": 2, "first_name": "Moussa", "last_name": "Fall", "classe": "L2", "active": True},
-    {"id": 3, "first_name": "Fatou", "last_name": "Ndiaye", "classe": "L1", "active": False},
-    {"id": 4, "first_name": "Ibrahima", "last_name": "Sow", "classe": "L3", "active": True},
-]
-TEACHERS = [
- {"first_name": "Mamadou", "last_name": "Ba", "subject": "Mathématiques"},
- {"first_name": "Aïssatou", "last_name": "Sy", "subject": "Informatique"},
- {"first_name": "Cheikh", "last_name": "Diallo", "subject": "Anglais"},
-]
-def home(request):
-    context = {
-        "school_name": "Lycée d'Excellence de Dakar",
-        "nb_classes": 12,
-    }
-    return render(request, "students/home.html", context)
+from .forms import StudentForm
+from .models import Student
+
 
 def student_list(request):
-    context = {"students": STUDENTS}
-    return render(request, "students/student_list.html", context)
+    query = request.GET.get("q", "").strip()
+    students = Student.objects.all()
+    if query:
+        students = students.filter(
+            Q(first_name__icontains=query) | Q(last_name__icontains=query)
+        )
+    return render(request, "students/student_list.html", {"students": students, "query": query})
+
+
 def student_detail(request, id):
-    for student in STUDENTS:
-        if student["id"] == id:
-            context = {"student": student}
-            return render(request, "students/student_detail.html", context)
-    raise Http404("Étudiant introuvable")
-def about(request):
-    return render(request, "students/about.html")
+    student = get_object_or_404(Student, id=id)
+    return render(request, "students/student_detail.html", {"student": student})
+
+
 def students_by_class(request, classe):
-    selection = []
-    for student in STUDENTS:
-        if student["classe"] == classe:
-            selection.append(student)
-    context = {"students": selection}
-    return render(request, "students/student_list.html", context)
-def teacher_list(request):
- context = {"teachers": TEACHERS}
- return render(request, "students/teachers.html", context)
-# Create your views here.
+    students = Student.objects.filter(classe=classe)
+    return render(request, "students/student_list.html", {"students": students, "query": ""})
+
+
+def student_create(request):
+    if request.method == "POST":
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            student = form.save()
+            messages.success(request, f"{student} a été inscrit(e).")
+            return redirect("students:detail", id=student.id)
+    else:
+        form = StudentForm()
+    context = {"form": form, "title": "Inscrire un étudiant"}
+    return render(request, "students/student_form.html", context)
+
+
+def student_update(request, id):
+    student = get_object_or_404(Student, id=id)
+    if request.method == "POST":
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"La fiche de {student} a été mise à jour.")
+            return redirect("students:detail", id=student.id)
+    else:
+        form = StudentForm(instance=student)
+    context = {"form": form, "title": f"Modifier {student}", "student": student}
+    return render(request, "students/student_form.html", context)
+
+
+def student_delete(request, id):
+    student = get_object_or_404(Student, id=id)
+    if request.method == "POST":
+        name = str(student)
+        student.delete()
+        messages.success(request, f"{name} a été supprimé(e).")
+        return redirect("students:list")
+    context = {"student": student}
+    return render(request, "students/student_confirm_delete.html", context)

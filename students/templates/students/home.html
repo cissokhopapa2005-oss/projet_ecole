@@ -1,9 +1,0 @@
-{% extends 'students/base.html' %}
-
-{% block title %}Accueil - Projet École{% endblock %}
-
-{% block content %}
-    <h1>Bienvenue sur le site de {{ school_name }}</h1>
-    <p>Notre établissement compte {{ nb_classes }} classes.</p>
-    <a href="{% url 'student_list' %}">Voir la liste des étudiants</a>
-{% endblock %}

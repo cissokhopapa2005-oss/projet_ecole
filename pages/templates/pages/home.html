@@ -1,0 +1,26 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Accueil - School Manager{% endblock %}
+
+{% block content %}
+    <section class="hero card">
+        <div class="hero-content">
+            <p class="eyebrow" style="color:#f2c27a;">Espace administratif</p>
+            <h1>Bienvenue à {{ school_name }}</h1>
+            <p>Centralisez les informations essentielles sur les étudiants et les enseignants.</p>
+            <a class="button" style="background:#f2a541;color:#0c4b33;" href="{% url 'students:list' %}">
+                Voir les étudiants
+            </a>
+        </div>
+    </section>
+    <div class="stats">
+        <article class="stat">
+            <strong>{{ nb_students }}</strong>
+            <span>étudiant{{ nb_students|pluralize }} inscrit{{ nb_students|pluralize }}</span>
+        </article>
+        <article class="stat">
+            <strong>{{ nb_active }}</strong>
+            <span>étudiant{{ nb_active|pluralize }} actif{{ nb_active|pluralize }}</span>
+        </article>
+    </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - School Manager{% endblock %}
+
+{% block content %}
+    <article class="card form-card">
+        <p class="eyebrow">Gestion des étudiants</p>
+        <h1>{{ title }}</h1>
+        <form method="post" style="margin-top:20px;">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="actions">
+                <button type="submit">Enregistrer</button>
+                {% if student %}
+                    <a class="button secondary" href="{% url 'students:detail' student.id %}">Annuler</a>
+                {% else %}
+                    <a class="button secondary" href="{% url 'students:list' %}">Annuler</a>
+                {% endif %}
+            </div>
+        </form>
+    </article>
+{% endblock %}
